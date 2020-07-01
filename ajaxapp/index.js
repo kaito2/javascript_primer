@@ -20,9 +20,7 @@ async function fetchUserInfo(userId) {
   );
   // エラーレスポンスが返されたことを検知する
   if (!response.ok) {
-    return Promise.reject(
-      new Error(`${response.status}: ${response.statusText}`)
-    );
+    throw new Error(`${response.status}: ${response.statusText}`);
   } else {
     return response.json();
   }
