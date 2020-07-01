@@ -1,12 +1,24 @@
 // commander モジュールを program としてインポートする
-program = require("commander");
+const program = require("commander");
 // fs モジュールを fs オブジェクトとしてインポートする
-fs = require("fs");
+const fs = require("fs");
+// marked モジュールを marked オブジェクトとしてインポートする
+const marked = require("marked");
 
+// gfm オプションを定義する
+program.option("--gfm", "GFMを有効にする");
 // コマンドライン引数を commander でパースする
 program.parse(process.argv);
+// オプションのパース結果をオブジェクトとして取得する
+const opts = program.opts();
 // ファイルパスを program.args から取り出す
 const filePath = program.args[0];
+
+// コマンドライン引数のオプションを取得し、デフォルトのオプションを上書きする
+const cliOptions = {
+  gfm: false,
+  ...opts,
+};
 
 // ファイルを非同期で読み込む
 fs.readFile(filePath, { encoding: "utf8" }, (err, file) => {
@@ -15,5 +27,7 @@ fs.readFile(filePath, { encoding: "utf8" }, (err, file) => {
     // 終了ステータス1 (一般的なエラー) としてプロセス終了する
     process.exit(1);
   }
-  console.log(file);
+  // HACK: spread 構文で `gfm` を上書きしている
+  const html = marked(file, { gfm: cliOptions.gfm });
+  console.log(html);
 });
