@@ -4,6 +4,8 @@ const program = require("commander");
 const fs = require("fs");
 // marked モジュールを marked オブジェクトとしてインポートする
 const marked = require("marked");
+// md2html モジュールをインポートする
+const md2html = require("./md2html");
 
 // gfm オプションを定義する
 program.option("--gfm", "GFMを有効にする");
@@ -28,6 +30,6 @@ fs.readFile(filePath, { encoding: "utf8" }, (err, file) => {
     process.exit(1);
   }
   // HACK: spread 構文で `gfm` を上書きしている
-  const html = marked(file, { gfm: cliOptions.gfm });
+  const html = md2html(file, cliOptions);
   console.log(html);
 });
