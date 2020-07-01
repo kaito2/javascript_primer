@@ -1,23 +1,29 @@
 function main() {
-  fetchUserInfo("js-primer-example");
+  fetchUserInfo("js-primer-example")
+    // JSONオブジェクトっで解決されるPromise
+    .then((userInfo) => createView(userInfo))
+    // HTML 文字列で解決されるPromise
+    .then((view) => displayView(view))
+    // Promise チェーンでエラーがあった場合はキャッチされる
+    .catch((error) => {
+      console.error(`エラーが発生しました: (${error})`);
+    });
 }
 
 function fetchUserInfo(userId) {
-  fetch(`https://api.github.com/users/${encodeURIComponent(userId)}`)
-    .then((response) => {
+  fetch(`https://api.github.com/users/${encodeURIComponent(userId)}`).then(
+    (response) => {
       console.log(response.status);
       // エラーレスポンスが返されたことを検知する
       if (!response.ok) {
-        console.error("エラーレスポンス: ", response);
+        return Promise.reject(
+          new Error(`${response.status}: ${response.statusText}`)
+        );
       } else {
-        return response.json().then((userInfo) => {
-          displayView(createView(userInfo));
-        });
+        return response.json();
       }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+    }
+  );
 }
 
 function createView(userInfo) {
