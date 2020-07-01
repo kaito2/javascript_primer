@@ -14,19 +14,18 @@ function getUserId() {
   return encodeURIComponent(value);
 }
 
-function fetchUserInfo(userId) {
-  return fetch(
+async function fetchUserInfo(userId) {
+  response = await fetch(
     `https://api.github.com/users/${encodeURIComponent(userId)}`
-  ).then((response) => {
-    // エラーレスポンスが返されたことを検知する
-    if (!response.ok) {
-      return Promise.reject(
-        new Error(`${response.status}: ${response.statusText}`)
-      );
-    } else {
-      return response.json();
-    }
-  });
+  );
+  // エラーレスポンスが返されたことを検知する
+  if (!response.ok) {
+    return Promise.reject(
+      new Error(`${response.status}: ${response.statusText}`)
+    );
+  } else {
+    return response.json();
+  }
 }
 
 function createView(userInfo) {
