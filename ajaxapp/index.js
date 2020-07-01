@@ -1,29 +1,32 @@
-function main() {
-  fetchUserInfo("js-primer-example")
-    // JSONオブジェクトっで解決されるPromise
-    .then((userInfo) => createView(userInfo))
-    // HTML 文字列で解決されるPromise
-    .then((view) => displayView(view))
-    // Promise チェーンでエラーがあった場合はキャッチされる
-    .catch((error) => {
-      console.error(`エラーが発生しました: (${error})`);
-    });
+async function main() {
+  try {
+    const userId = getUserId();
+    const userInfo = await fetchUserInfo(userId); // userId は HTML から取得
+    const view = createView(userInfo);
+    displayView(view);
+  } catch (error) {
+    console.error(`エラーが発生しました: (${error})`);
+  }
+}
+
+function getUserId() {
+  const value = document.getElementById("userId").value;
+  return encodeURIComponent(value);
 }
 
 function fetchUserInfo(userId) {
-  fetch(`https://api.github.com/users/${encodeURIComponent(userId)}`).then(
-    (response) => {
-      console.log(response.status);
-      // エラーレスポンスが返されたことを検知する
-      if (!response.ok) {
-        return Promise.reject(
-          new Error(`${response.status}: ${response.statusText}`)
-        );
-      } else {
-        return response.json();
-      }
+  return fetch(
+    `https://api.github.com/users/${encodeURIComponent(userId)}`
+  ).then((response) => {
+    // エラーレスポンスが返されたことを検知する
+    if (!response.ok) {
+      return Promise.reject(
+        new Error(`${response.status}: ${response.statusText}`)
+      );
+    } else {
+      return response.json();
     }
-  );
+  });
 }
 
 function createView(userInfo) {
