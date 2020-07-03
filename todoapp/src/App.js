@@ -1,9 +1,11 @@
-import { element } from "./view/html-util.js";
+import { TodoListModel } from "./model/TodoListModel.js";
+import { TodoItemModel } from "./model/TodoItemModel.js";
+import { element, render } from "./view/html-util.js";
 
-console.log("App.js: loaded");
 export class App {
   constructor() {
-    console.log("App initialized");
+    // 1. TodoList の初期化
+    this.todoListModel = new TodoListModel();
   }
 
   mount() {
@@ -11,25 +13,35 @@ export class App {
     const inputElement = document.querySelector("#js-form-input");
     const containerElement = document.querySelector("#js-todo-list");
     const todoItemCounterElement = document.querySelector("#js-todo-count");
-    // Todo アイテム数
-    let todoItemCount = 0;
+    // 2. TodoListModel の状態が更新されたら表示を更新する
+    this.todoListModel.onChange(() => {
+      // Todo リストをまとめる List 要素
+      const todoListElement = element`<ul />`;
+      // それぞれの TodoItem 要素を todoListElement 以下へ追加する
+      const todoItems = this.todoListModel.getTodoItems();
+      todoItems.forEach((item) => {
+        const todoItemElement = element`<li>${item.title}</li>`;
+        todoListElement.appendChild(todoItemElement);
+      });
+      // containerElement の中身を todoListElement で上書きする
+      render(todoListElement, containerElement);
 
+      // アイテム数の表示を更新
+      todoItemCounterElement.textContent = `Todo アイテム数: ${this.todoListModel.getTotalCount()}`;
+    });
+
+    // 3. フォームを送信したら、新しい TodoItemModel を追加する
     formElement.addEventListener("submit", (event) => {
       // submit イベントの本来の動作を止める
       // -> preventDefault をしない場合はページがリロードされる
       event.preventDefault(); // そんなオプションが…
 
-      // 追加する Todo アイテムの要素(li 要素)を作成する
-      const todoItemElement = element`<li>${inputElement.value}</li>`;
-
-      // Todo アイテムを container に追加する
-      containerElement.appendChild(todoItemElement);
-
-      // Todo アイテム数を +1 し、表示されているテキストを更新する
-      todoItemCount += 1;
-      todoItemCounterElement.textContent = `Todo アイテム数: ${todoItemCount}`;
-
-      // 入力欄を空文字列にしてリセット
+      this.todoListModel.addTodo(
+        new TodoItemModel({
+          title: inputElement.value,
+          completed: false,
+        })
+      );
       inputElement.value = "";
     });
   }
