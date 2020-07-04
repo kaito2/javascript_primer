@@ -20,7 +20,13 @@ export class App {
       // それぞれの TodoItem 要素を todoListElement 以下へ追加する
       const todoItems = this.todoListModel.getTodoItems();
       todoItems.forEach((item) => {
-        const todoItemElement = element`<li>${item.title}</li>`;
+        const todoItemElement = item.completed
+          ? element`<li>
+          <input type="checkbox" class="checkbox" checked><s>${item.title}</s></input>
+          </li>`
+          : element`<li>
+          <input type="checkbox" class="checkbox">${item.title}</input>
+          </li>`;
         todoListElement.appendChild(todoItemElement);
       });
       // containerElement の中身を todoListElement で上書きする
